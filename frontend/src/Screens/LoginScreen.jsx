@@ -21,18 +21,18 @@ const LoginScreen = () => {
                     <Form.Label>Email Address</Form.Label>
                     <Form.Control
                         type="email"
-                        placeholder="'Enter Email"
+                        placeholder="Enter Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}>
                     </Form.Control>
                 </Form.Group>
 
                 <Form.Group className="my-2" controlId="password">
-                    <Form.Label>Password Address</Form.Label>
+                    <Form.Label>Password</Form.Label>
                     <Form.Control
                         type="password"
-                        placeholder="'Enter password"
-                        value={email}
+                        placeholder="Enter password"
+                        value={password}
                         onChange={(e) => setPassword(e.target.value)}>
                     </Form.Control>
                 </Form.Group>
@@ -43,7 +43,7 @@ const LoginScreen = () => {
 
                 <Row className="py-3">
                     <Col>
-                    New Customer? <Link to='/register'>Register</Link>
+                        New Customer? <Link to='/register'>Register</Link>
                     </Col>
                 </Row>
             </Form>
