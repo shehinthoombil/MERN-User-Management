@@ -14,7 +14,6 @@ const App = () => {
       <Container className="my-2">
         <Outlet />
       </Container>
-      <h1>MERN Auth</h1>
     </>
   )
 }

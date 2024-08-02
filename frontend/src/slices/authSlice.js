@@ -18,9 +18,19 @@ const initialState = {
         state.userInfo = null;
         localStorage.removeItem('userInfo');
       },
+
+      setAdminCredentials: (state, action) => {
+        state.adminInfo = action.payload;
+        localStorage.setItem('adminInfo', JSON.stringify(action.payload))
+      },
+
+      adminlogout: (state) => {
+        state.adminInfo = null;
+        localStorage.removeItem('adminInfo');
+      }
     },
   });
   
-  export const { setCredentials, logout } = authSlice.actions;
+  export const { setCredentials, logout, setAdminCredentials, adminlogout } = authSlice.actions;
   
   export default authSlice.reducer;

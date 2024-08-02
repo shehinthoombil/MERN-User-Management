@@ -12,6 +12,7 @@ const RegisterScreen = () => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [mobile, setMobile] = useState("");
     const [confirmPassword, setConfirmPassword] = useState('')
 
     const dispatch = useDispatch();
@@ -30,7 +31,28 @@ const RegisterScreen = () => {
     const submitHandler = async (e) => {
         e.preventDefault()
 
-        if (password !== confirmPassword) {
+        // Regular expression for password validation (at least 6 characters with at least one special character)
+        const emailRegex = /^\S+@\S+\.\S+$/;
+        const passwordRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(?=.*[a-zA-Z0-9]).{6,}$/;
+        const mobileRegex = /^(?![0-5])\d{10}$/;
+        const nameRegex = /^[^\s]+(\s[^\s]+)*$/;
+
+        // Check if any field is empty
+        if (!name || !mobile || !email || !password) {
+            toast.error("All fields should be filled");
+        } else if (!name.match(nameRegex)) {
+            toast.error("Name cannot contain consecutive spaces");
+        } else if (!mobile.match(mobileRegex)) {
+            toast.error(
+                "Enter a valid mobile number"
+            );
+        } else if (!email.match(emailRegex)) {
+            toast.error("Invalid email address");
+        } else if (!password.match(passwordRegex)) {
+            toast.error(
+                "Password must be at least 6 characters and contain at least one special character"
+            );
+        } else if (password !== confirmPassword) {
             toast.error('Passwords do not match');
         } else {
             try {
@@ -44,7 +66,7 @@ const RegisterScreen = () => {
     }
 
     return (
-        <FormContainer>
+        <FormContainer> 
             <h1>Sign Up</h1>
 
             <Form onSubmit={submitHandler}>
@@ -55,6 +77,16 @@ const RegisterScreen = () => {
                         placeholder="Enter Name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}>
+                    </Form.Control>
+                </Form.Group>
+
+                <Form.Group className="my-2" controlId="mobile">
+                    <Form.Label>Mobile </Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Enter Mobile"
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}>
                     </Form.Control>
                 </Form.Group>
 

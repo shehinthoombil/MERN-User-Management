@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
 
+
 // @desc    Auth user & get token
 // @route   POST /api/users/auth
 // @access  Public
@@ -16,6 +17,7 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      profileImg: user.profileImg
     });
   } else {
     res.status(401);
@@ -32,6 +34,8 @@ const authUser = asyncHandler(async (req, res) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
+  const profileImg = "images.181-1814767_person-svg-png-icon-free-download-profile-icon.png"
+
   const userExists = await User.findOne({ email });
 
   if (userExists) {
@@ -43,6 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    profileImg
   });
 
   if (user) {
@@ -51,6 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      profileImg: user.profileImg
     });
   } else {
     res.status(400);
@@ -69,7 +75,6 @@ const logoutUser = asyncHandler(async (req, res) => {
     expires: new Date(0),
   });
 
-  res.status(200).json({ message: 'User logged out' })
 });
 
 // @desc    Get user profile
@@ -83,13 +88,13 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      profileImg: user.profileImg
     });
   } else {
     res.status(404);
     throw new Error('User not found');
   }
 
-  res.status(200).json({ message: 'User profile' })
 });
 
 // @desc    update user profile
@@ -117,15 +122,43 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('User not found');
   }
-
-  res.status(200).json({ message: 'Upadte user profile' })
 });
+
+const setUserProfile = asyncHandler(async (req, res) => {
+
+  try {
+    const { url, id } = req.body;
+
+    const user = await User.findById(id);
+
+    if (user) {
+      user.profileImg = url;
+
+      await user.save();
+
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        profileImg: user.profileImg
+      })
+
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+  } catch (error) {
+
+  }
+})
 
 export {
   authUser,
   registerUser,
   logoutUser,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  setUserProfile
 
 };
