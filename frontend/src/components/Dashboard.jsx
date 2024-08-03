@@ -2,7 +2,7 @@ import { MdDelete } from "react-icons/md";
 import { FaUserEdit } from "react-icons/fa";
 import {
   useGetUsersDataMutation,
-  usePutBlockUserMutation,
+  // usePutBlockUserMutation,
   useDeleteUserMutation,
   useUpdateUserDataMutation,
   useAdminLogoutMutation,
@@ -11,8 +11,8 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { adminlogout,logout } from "../slices/authSlice"; 
-import { NavLink } from "react-router-dom";
+import { adminlogout, logout } from "../slices/authSlice";
+import { NavLink, useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
@@ -43,13 +43,14 @@ function Dashboard() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [getUsersData] = useGetUsersDataMutation();
-  const [putBlockUser] = usePutBlockUserMutation();
+  // const [putBlockUser] = usePutBlockUserMutation();
   const [deleteUser] = useDeleteUserMutation();
   const [updateUser] = useUpdateUserDataMutation();
   const [adminLogout] = useAdminLogoutMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchUser() {
@@ -90,6 +91,24 @@ function Dashboard() {
   };
 
 
+  // const handleBlockUnblockUser = async (userId) => {
+  //   const response = await putBlockUser(userId).unwrap("");
+  //   if (userInfo && userInfo._id === userId) {
+  //     dispatch(logout());
+  //   }
+  //   const updatedUsers = users.map((user) => {
+  //     if (user._id === userId) {
+  //       return {
+  //         ...user,
+  //         isStatus: response.isStatus, // Update the user's isBlocked status
+  //       };
+  //     }
+  //     return user;
+  //   });
+
+  //   setUsers(updatedUsers);
+  // };
+
   const handleDeleteClick = (userId) => {
     setUserId(userId);
     setIsOpen(true);
@@ -103,6 +122,7 @@ function Dashboard() {
   const handleUpdate = (obj) => {
     setUserId(obj._id);
     setName(obj.name);
+    setMobile(obj.mobile);
     setEmail(obj.email);
     setUpdateModalOpen(true);
   };
@@ -112,11 +132,10 @@ function Dashboard() {
     e.preventDefault();
 
     // Regular expression for password validation (at least 6 characters with at least one special character)
-
     const emailRegex = /^\S+@\S+\.\S+$/;
     const passwordRegex =
       /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(?=.*[a-zA-Z0-9]).{6,}$/;
-    
+    const mobileRegex = /^(?![0-5])\d{10}$/;
     const nameRegex = /^[^\s]+(\s[^\s]+)*$/;
 
     // Check if any field is empty
@@ -169,180 +188,204 @@ function Dashboard() {
 
   return (
     <div className="w-full h-20 bg-white border-2 shadow-md">
-        <span className="text-xl font-bold absolute mt-4 ml-5">Welcome Admin</span> 
-        <div className="w-full flex justify-end">
-            <button onClick={handleLogout} className="h-10 w-20 hover:bg-red-700 bg-black rounded-lg text-white hover:scale-105 mr-10 mt-5">Log Out</button>
-        </div>
-    <div className="flex items-center justify-center mt-20">
-      <div className="overflow-x-auto h-3/5 w-3/5 max-lg:w-ful p-5 max-lg:px-4 rounded-md border-2 shadow-md bg-white">
-        <div className="flex justify-around max-sm:grid items-center">
-          <div>
-            <h1 className="mb-5 text-3xl font-bold max-lg:text-xl">
-              User Management
-            </h1>
-          </div>
-          <div className="flex ml-16">
-            <input
-              placeholder="Search Users"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded-md rounded-br-none rounded-tr-none border max-lg:py-2 border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
-            />
-            <button className="bg-blue-500  max-lg:text-xs p-2 hover:cursor-pointer rounded-tr-lg rounded-br-lg text-white font-semibold hover:bg-blue-800 transition-colors py-[12px]">
-              Search
-            </button>
-          </div>
-            <div>
-             <NavLink to={'/addNewUser'}>
-             <button
-             data-ripple-light="true"
-             type="button"
-             className="block select-none rounded-lg bg-gradient-to-tr from-cyan-600 to-cyan-400 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-cyan-500/20 transition-all hover:shadow-lg hover:shadow-cyan-500/40 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-           >
-             Add User
-           </button>
-             </NavLink>
-            </div>
-        </div>
-        <table className="min-w-full bg-white border border-gray-300 mt-3">
-          <thead>
-            <tr className="bg-gray-100">
-            <th className="border border-gray-300 p-2"></th>
-              <th className="border border-gray-300 p-2">Name</th>
-              <th className="border border-gray-300 p-2">Email</th>
-            
-              <th className="border border-gray-300 p-2 flex items-center">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((obj, index) => (
-              <tr key={index} className="border-b border-gray-300">
-                <td className="border-r border-gray-300 flex justify-center">
-                    <img src={obj.profileImg} className="h-10 w-10 rounded-full mt-2" alt="" />
-                </td>
-                <td className="border-r border-gray-300 p-2">{obj.name}</td>
-                <td className="border-r border-gray-300 p-2">{obj.email}</td>
-               
-                <td className="flex justify-between p-2">
-                  <button
-                    onClick={() => handleUpdate(obj)}
-                    className="hover:scale-105"
-                  >
-                    <FaUserEdit
-                      size={25}
-                      style={{ color: "black", transition: "color 0.3s ease" }}
-                      onMouseOver={(e) => (e.target.style.color = "blue")}
-                      onMouseOut={(e) => (e.target.style.color = "black")}
-                    />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(obj._id)}
-                    className="mt-2 hover:scale-105"
-                  >
-                    <MdDelete
-                      size={25}
-                      style={{ color: "black", transition: "color 0.3s ease" }}
-                      onMouseOver={(e) => (e.target.style.color = "red")}
-                      onMouseOut={(e) => (e.target.style.color = "black")}
-                    />
-                  </button>
-                 
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <span className="text-xl font-bold absolute mt-4 ml-5">Welcome Admin</span>
+      <div className="w-full flex justify-end">
+        <button onClick={handleLogout} className="h-10 w-20 hover:bg-red-700 bg-black rounded-lg text-white hover:scale-105 mr-10 mt-5">Log Out</button>
       </div>
+      <div className="flex items-center justify-center mt-20">
+        <div className="overflow-x-auto h-3/5 w-3/5 max-lg:w-ful p-5 max-lg:px-4 rounded-md border-2 shadow-md bg-white">
+          <div className="flex justify-around max-sm:grid items-center">
+            <div>
+              <h1 className="mb-5 text-3xl font-bold max-lg:text-xl">
+                User Management
+              </h1>
+            </div>
 
-      <Modal
-        isOpen={modalIsOpen}
-        // onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Delete User Modal"
-      >
-        <p className="font-bold text-xl mt-5 text-blue-600">
-          Are you sure you want to delete this user?
-        </p>
-        <div className="flex justify-around mt-10">
-          <button
-            onClick={closeModal}
-            className="h-10 w-20 hover:bg-green-700 bg-black rounded-lg text-white hover:scale-105"
-          >
-            No
-          </button>
-          <button
-            onClick={handleDelete}
-            className="h-10 w-20 hover:bg-red-700 bg-black rounded-lg text-white hover:scale-105"
-          >
-            Proceed
-          </button>
+            <div className="flex ml-16">
+              <input
+                placeholder="Search Users"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="rounded-md rounded-br-none rounded-tr-none border max-lg:py-2 border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
+              />
+              <button className="bg-blue-500  max-lg:text-xs p-2 hover:cursor-pointer rounded-tr-lg rounded-br-lg text-white font-semibold hover:bg-blue-800 transition-colors py-[12px]">
+                Search
+              </button>
+            </div>
+
+            <div>
+              <NavLink to={'/addNewUser'}>
+                <button
+                  data-ripple-light="true"
+                  type="button"
+                  className="block select-none rounded-lg bg-gradient-to-tr from-cyan-600 to-cyan-400 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-cyan-500/20 transition-all hover:shadow-lg hover:shadow-cyan-500/40 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                >
+                  Add User
+                </button>
+              </NavLink>
+            </div>
+          </div>
+
+          <table className="min-w-full bg-white border border-gray-300 mt-3">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 p-2">Image</th>
+                <th className="border border-gray-300 p-2">Name</th>
+                <th className="border border-gray-300 p-2">Email</th>
+                <th className="border border-gray-300 p-2">Mobile</th>
+                <th className="border border-gray-300 p-2 flex items-center">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            {/* body             */}
+            <tbody>
+              {filteredUsers.map((obj, index) => (
+                <tr key={index} className="border-b border-gray-300">
+                  <td className="border-r border-gray-300 flex justify-center">
+                    <img src={obj.profileImg} className="h-10 w-10 rounded-full mt-2" alt="" />
+                  </td>
+                  <td className="border-r border-gray-300 p-2">{obj.name}</td>
+                  <td className="border-r border-gray-300 p-2">{obj.email}</td>
+                  <td className="border-r border-gray-300 p-2">{obj.mobile}</td>
+
+                  <td className="flex justify-between p-2">
+                    <button
+                      onClick={() => handleUpdate(obj)}
+                      className="hover:scale-105"
+                    >
+                      <FaUserEdit
+                        size={25}
+                        style={{ color: "black", transition: "color 0.3s ease" }}
+                        onMouseOver={(e) => (e.target.style.color = "blue")}
+                        onMouseOut={(e) => (e.target.style.color = "black")}
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(obj._id)}
+                      className="mt-2 hover:scale-105"
+                    >
+                      <MdDelete
+                        size={25}
+                        style={{ color: "black", transition: "color 0.3s ease" }}
+                        onMouseOver={(e) => (e.target.style.color = "red")}
+                        onMouseOut={(e) => (e.target.style.color = "black")}
+                      />
+                    </button>
+                    {/* 
+                    {obj.isStatus ? (
+                    <button
+                      onClick={() => handleBlockUnblockUser(obj._id)}
+                      className=" h-10 w-20 hover:bg-red-700 bg-black rounded-lg text-white hover:scale-105"
+                    >
+                      Block
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleBlockUnblockUser(obj._id)}
+                      className="h-10 w-20 hover:bg-green-500 bg-black rounded-lg text-white hover:scale-105"
+                    >
+                      Un Block
+                    </button>
+                  )}
+                   */}
+
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </Modal>
 
-      <Modal
-        isOpen={updateModalOpen}
-        style={customStyles}
-        contentLabel="Update User Modal"
-      >
-        <div className="grid gap-5 p-5">
-          <div>
-            <input
-              onChange={(e) => setName(e.target.value)}
-              placeholder=""
-              type="text"
-              value={name}
-              className="rounded-md w-80 border border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <input
-              onChange={(e) => setMobile(e.target.value)}
-              placeholder=""
-              type="text"
-              value={mobile}
-              className="rounded-md w-full border border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <input
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder=""
-              type="email"
-              value={email}
-              className="rounded-md border w-full border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <input
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter New Password"
-              type="password"
-              className="rounded-md border w-full border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <input
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm Password"
-              type="password"
-              className="rounded-md border w-full border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
-            />
-          </div>
-          <div className="">
+        <Modal
+          isOpen={modalIsOpen}
+          // onRequestClose={closeModal}
+          style={customStyles}
+          contentLabel="Delete User Modal"
+        >
+          <p className="font-bold text-xl mt-5 text-blue-600">
+            Are you sure you want to delete this user?
+          </p>
+          <div className="flex justify-around mt-10">
             <button
-              onClick={submitUpdateHandler}
-              data-ripple-light="true"
-              type="button"
-              className="block w-full select-none rounded-lg bg-gradient-to-tr from-cyan-600 to-cyan-400 py-3 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-cyan-500/20 transition-all hover:shadow-lg hover:shadow-cyan-500/40 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+              onClick={closeModal}
+              className="h-10 w-20 hover:bg-green-700 bg-black rounded-lg text-white hover:scale-105"
             >
-              Update Details
+              No
+            </button>
+            <button
+              onClick={handleDelete}
+              className="h-10 w-20 hover:bg-red-700 bg-black rounded-lg text-white hover:scale-105"
+            >
+              Yes
             </button>
           </div>
-        </div>
-      </Modal>
-    </div>
+        </Modal>
+
+        {/* edit user */}
+        <Modal
+          isOpen={updateModalOpen}
+          style={customStyles}
+          contentLabel="Update User Modal"
+        >
+          <div className="grid gap-5 p-5">
+            <div>
+              <input
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter name"
+                type="text"
+                value={name}
+                className="rounded-md w-80 border border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <input
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="Enter Mobile"
+                type="text"
+                value={mobile}
+                className="rounded-md w-full border border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <input
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter Email"
+                type="email"
+                value={email}
+                className="rounded-md border w-full border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <input
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter New Password"
+                type="password"
+                className="rounded-md border w-full border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <input
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm Password"
+                type="password"
+                className="rounded-md border w-full border-blue-gray-200 px-3 py-3 font-sans text-sm font-normal  outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-cyan-500"
+              />
+            </div>
+            <div className="">
+              <button
+                onClick={submitUpdateHandler}
+                data-ripple-light="true"
+                type="button"
+                className="block w-full select-none rounded-lg bg-gradient-to-tr from-cyan-600 to-cyan-400 py-3 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-cyan-500/20 transition-all hover:shadow-lg hover:shadow-cyan-500/40 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 }

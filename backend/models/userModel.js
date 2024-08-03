@@ -13,6 +13,10 @@ const userSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    mobile:{
+      type:String,
+      
+  },
     profileImg: {
       type: String
     },
@@ -20,18 +24,23 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    isStatus:{
+      type:Boolean,
+      default : true
+  },
   },
   {
     timestamps: true,
   }
 );
 
-// Match user entered password to hashed password in database
+//   comaring the password when the user login ,Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Encrypt password using bcrypt
+// Encrypt password using bcrypt,hashing password
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from "react-redux"
 import { Form, Button, Row, Col } from "react-bootstrap"
-import FormContainer from '../components/FormContainer'
+import FormContainer from './FormContainer'
 import { toast } from 'react-toastify'
-import Loader from "../components/Loader"
+import Loader from "./Loader"
 import { useRegisterMutation } from "../slices/usersApiSlice"
 import { setCredentials } from '../slices/authSlice';
 
@@ -56,7 +56,7 @@ const RegisterScreen = () => {
             toast.error('Passwords do not match');
         } else {
             try {
-                const res = await register({ name, email, password }).unwrap();
+                const res = await register({ name, email, password, mobile }).unwrap();
                 dispatch(setCredentials({ ...res }));
                 navigate('/');
             } catch (err) {
@@ -66,7 +66,7 @@ const RegisterScreen = () => {
     }
 
     return (
-        <FormContainer> 
+        <FormContainer>
             <h1>Sign Up</h1>
 
             <Form onSubmit={submitHandler}>

@@ -32,7 +32,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
     }),
     setImg: builder.mutation({
       query: (data) => ({
-        url: `${USER_URL}/addProfile`,
+        url: `${USERS_URL}/addProfile`,
         method: 'POST', // Corrected method to POST
         body: data,
       }), 

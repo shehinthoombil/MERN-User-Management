@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react"
-import { Link,NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { Form, Button, Row, Col } from "react-bootstrap"
 import { useDispatch, useSelector } from "react-redux"
-import FormContainer from '../components/FormContainer'
+import FormContainer from './FormContainer'
 import { useLoginMutation } from '../slices/usersApiSlice';
 import { setCredentials } from '../slices/authSlice';
 import { toast } from 'react-toastify'
-import Loader  from "../components/Loader"
+import Loader from "./Loader"
 
-const LoginScreen = () => {
+const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [login, { isLoading }] = useLoginMutation();
+    // const [login, { isLoading }] = useLoginMutation();
+    const [login] = useLoginMutation();
     const { userInfo } = useSelector((state) => state.auth);
 
     useEffect(() => {
@@ -61,7 +62,7 @@ const LoginScreen = () => {
                 </Form.Group>
 
 
-                {isLoading && <Loader/> }
+                {/* {isLoading && <Loader />} */}
                 <Button type="submit" variant='primary' className="'mt-3" >
                     Sign In
                 </Button>
@@ -78,4 +79,4 @@ const LoginScreen = () => {
     )
 }
 
-export default LoginScreen
+export default Login
